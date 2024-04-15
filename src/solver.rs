@@ -3,14 +3,6 @@ pub struct Sudoku {
 }
 
 impl Sudoku {
-    pub fn print(&self) {
-        for row in self.grid.iter() {
-            for val in row.iter() {
-                print!("{}", val);
-            }
-            println!();
-        }
-    }
     pub fn solve(data: Vec<Vec<u32>>) -> Result<Sudoku, &'static str> {
         let mut sudoku = Self { grid: data };
         if sudoku.solve_r(0) {
@@ -80,5 +72,22 @@ impl Sudoku {
             }
         }
         true
+    }
+}
+
+impl std::fmt::Display for Sudoku {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let print_string = self
+            .grid
+            .iter()
+            .map(|line| {
+                line.iter()
+                    .map(|x| char::from_digit(*x, 10).unwrap())
+                    .collect::<String>()
+            })
+            .collect::<Vec<String>>()
+            .join("\n");
+        write!(f, "{print_string}").unwrap();
+        Ok(())
     }
 }
