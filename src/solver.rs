@@ -19,39 +19,24 @@ impl<'a> Solver1<'a> {
         if index == 81 {
             return true;
         }
-        if self.index(index) != &0 {
+        if self.sudoku.index(index) != &0 {
             return self.solve_r(index + 1);
         }
         for val in 1..=BOARD_SIZE {
             if self.is_valid(index, val) {
-                *self.mut_index(index) = val;
+                *self.sudoku.mut_index(index) = val;
                 if self.solve_r(index + 1) {
                     return true;
                 }
             }
         }
-        *self.mut_index(index) = 0;
-        return false;
-    }
+        *self.sudoku.mut_index(index) = 0;
 
-    #[inline]
-    fn index(&mut self, index: usize) -> &usize {
-        self.mut_index(index)
-    }
-
-    #[inline]
-    fn mut_index(&mut self, index: usize) -> &mut usize {
-        let (x, y) = self.get_x_y(index);
-        &mut self.sudoku.grid[y][x]
-    }
-
-    #[inline]
-    fn get_x_y(&self, index: usize) -> (usize, usize) {
-        (index % BOARD_SIZE, index / BOARD_SIZE)
+        false
     }
 
     fn is_valid(&self, index: usize, val: usize) -> bool {
-        let (x1, y1) = self.get_x_y(index);
+        let (x1, y1) = self.sudoku.get_x_y(index);
         // row check
         for x2 in 0..BOARD_SIZE {
             if self.sudoku.grid[y1][x2] == val {
