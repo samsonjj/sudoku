@@ -1,4 +1,4 @@
-pub fn parse(data: &str) -> Vec<Vec<u32>> {
+pub fn parse(data: &str) -> Vec<Vec<usize>> {
     data.lines()
         .map(|line| {
             if line.len() != 9 {
@@ -9,6 +9,7 @@ pub fn parse(data: &str) -> Vec<Vec<u32>> {
                 .map(|c| {
                     c.to_digit(10)
                         .expect("character could not be parsed to digit")
+                        as usize
                 })
                 .collect()
         })

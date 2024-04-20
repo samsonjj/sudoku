@@ -1,7 +1,11 @@
 use std::io::Read;
 
+use crate::solver::Solver1;
+use crate::sudoku::Sudoku;
+
 mod parser;
 mod solver;
+mod sudoku;
 
 fn read_stdin() -> String {
     let mut stdin = std::io::stdin();
@@ -10,10 +14,16 @@ fn read_stdin() -> String {
     String::from_utf8(buf).unwrap()
 }
 
-fn main() -> Result<(), &'static str> {
+fn main() -> Result<(), String> {
     let input = read_stdin();
     let grid = parser::parse(input.as_str());
-    let solution = solver::Sudoku::solve(grid)?;
-    println!("{solution}");
+    let mut sudoku = Sudoku { grid };
+
+    let start = std::time::Instant::now();
+    Solver1::solve(&mut sudoku)?;
+
+    let duration = start.elapsed();
+    println!("Took {duration:?} ms");
+    println!("{sudoku}");
     Ok(())
 }

@@ -1,72 +1,78 @@
-pub struct Sudoku {
-    pub grid: Vec<Vec<u32>>,
+const BOARD_SIZE: usize = 9;
+
+use crate::sudoku::Sudoku;
+
+pub struct Solver1<'a> {
+    sudoku: &'a mut Sudoku,
 }
 
-impl Sudoku {
-    pub fn solve(data: Vec<Vec<u32>>) -> Result<Sudoku, &'static str> {
-        let mut sudoku = Self { grid: data };
-        if sudoku.solve_r(0) {
-            return Ok(sudoku);
+impl<'a> Solver1<'a> {
+    pub fn solve(sudoku: &'a mut Sudoku) -> Result<(), String> {
+        let mut _self = Self { sudoku };
+        match _self.solve_r(0) {
+            true => Ok(()),
+            false => Err("No solution".to_string()),
         }
-        Err("No solution")
     }
 
     fn solve_r(&mut self, index: usize) -> bool {
         if index == 81 {
             return true;
         }
-        if self.at_index(index) != 0 {
+        if self.index(index) != &0 {
             return self.solve_r(index + 1);
         }
-        for val in 1..=9 {
+        for val in 1..=BOARD_SIZE {
             if self.is_valid(index, val) {
-                self.set_index(index, val);
+                *self.mut_index(index) = val;
                 if self.solve_r(index + 1) {
                     return true;
                 }
             }
         }
-        self.set_index(index, 0);
+        *self.mut_index(index) = 0;
         return false;
     }
 
-    fn set_index(&mut self, index: usize, val: u32) {
-        let (x, y) = self.get_x_y(index);
-        self.grid[y][x] = val;
+    #[inline]
+    fn index(&mut self, index: usize) -> &usize {
+        self.mut_index(index)
     }
 
-    fn at_index(&self, index: usize) -> u32 {
+    #[inline]
+    fn mut_index(&mut self, index: usize) -> &mut usize {
         let (x, y) = self.get_x_y(index);
-        return self.grid[y][x];
+        &mut self.sudoku.grid[y][x]
     }
 
     #[inline]
     fn get_x_y(&self, index: usize) -> (usize, usize) {
-        (index % 9, index / 9)
+        (index % BOARD_SIZE, index / BOARD_SIZE)
     }
 
-    fn is_valid(&self, index: usize, val: u32) -> bool {
+    fn is_valid(&self, index: usize, val: usize) -> bool {
         let (x1, y1) = self.get_x_y(index);
         // row check
-        for x2 in 0..9 {
-            if self.grid[y1][x2] == val {
+        for x2 in 0..BOARD_SIZE {
+            if self.sudoku.grid[y1][x2] == val {
                 return false;
             }
         }
         // column check
-        for y2 in 0..9 {
-            if self.grid[y2][x1] == val {
+        for y2 in 0..BOARD_SIZE {
+            if self.sudoku.grid[y2][x1] == val {
                 return false;
             }
         }
         // grid check
+        // (a, b) is coordinate of top-left of grid, via math magic
         let a = (x1 / 3) * 3;
         let b = (y1 / 3) * 3;
         for da in 0..3 {
             for db in 0..3 {
                 let x2 = a + da;
                 let y2 = b + db;
-                if self.grid[y2][x2] == val {
+                if self.sudoku.grid[y2][x2] == val {
                     return false;
                 }
             }
@@ -82,7 +88,7 @@ impl std::fmt::Display for Sudoku {
             .iter()
             .map(|line| {
                 line.iter()
-                    .map(|x| char::from_digit(*x, 10).unwrap())
+                    .map(|x| char::from_digit(*x as u32, 10).unwrap())
                     .collect::<String>()
             })
             .collect::<Vec<String>>()
