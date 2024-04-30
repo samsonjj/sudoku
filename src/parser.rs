@@ -15,3 +15,18 @@ pub fn parse(data: &str) -> Vec<Vec<usize>> {
         })
         .collect()
 }
+
+pub fn parse_list(data: &str) -> Vec<Vec<Vec<usize>>> {
+    data.lines()
+        .collect::<Vec<&str>>()
+        .chunk_by(|_line1, line2| !line2.starts_with("Grid"))
+        .map(|chunk: &[&str]| {
+            let chunk_str = chunk
+                .iter()
+                .skip(1)
+                .map(|s: &&str| s.to_string())
+                .collect::<Vec<String>>();
+            parse(&chunk_str.join("\n"))
+        })
+        .collect()
+}
